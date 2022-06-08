@@ -14,7 +14,7 @@ public:
     Server(int port);
     ~Server();
     void setPort();
-    void sendComData(QString Data, QSerialPort *Com);
+    void sendComData(QString Data, QSerialPort *Com);   //Convert bytes to string to char and send to comport
 
 private:
     QByteArray Data;
@@ -29,10 +29,10 @@ private:
 
 
 public slots:
-    void startServer();
-    void incomingConnection(qintptr socketDescriptor);
-    void socketReady();
-    void socketDisconnected();
+    void startServer(); //Starts TCP server
+    void incomingConnection(qintptr socketDescriptor);  //Calls when new client connected successfully
+    void socketReady(); //Read data that cames from client and pars
+    void socketDisconnected();  //call after client disconnected and delete socket
 };
 
 #endif // SERVER_H

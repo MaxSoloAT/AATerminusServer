@@ -29,13 +29,22 @@ Server::~Server(){
     this->close();
 }
 
+//Convert bytes to string to char and send to comport
 void Server::sendComData(QString Data, QSerialPort *Com)
 {
+    Data = Data + "\r";
     Com->write(Data.toStdString().c_str());
+    qDebug()<<"COM: "<<Com<<endl;
+    qDebug()<<"Data: "<<Data.toStdString().c_str()<<endl;
+    qDebug()<<"-------------------------------------------"<<endl;
+
 }
 
+//Create a new comport poiter and setting up the comport(special for Arduino Uno),
+//push pointer to vector(list)
 void Server::openComPort(QString port)
 {
+    qDebug()<<"\tConfigured new COM...";
     arduino = new QSerialPort(this);
     arduino->setPortName(port);
     arduino->setBaudRate(QSerialPort::Baud115200);
@@ -45,48 +54,56 @@ void Server::openComPort(QString port)
     arduino->setFlowControl(QSerialPort::NoFlowControl);
     arduino->open(QSerialPort::WriteOnly);
     arduino->open(QIODevice::WriteOnly);
-
     Arduinos.push_back(arduino);
-    qDebug()<<"OK"<<endl;
+    qDebug()<<"\tDONE"<<endl;
 
 }
 
+//Starts TCP server
 void Server::startServer(){
+    //todo: enable only 1 connection
     //QTcpServer::setMaxPendingConnections(1);
     if(this->listen(QHostAddress::Any, port)){
-        qDebug()<<"Listening\n";
+        qDebug()<<"\t\t\t\t\tServer started\n";
     }
     else{
-        qDebug()<<"Not listening\n";
+        qDebug()<<"\t\t\t\t\tError\n";
     }
-    qDebug()<<"Opening Com ports:"<<endl;
+    qDebug()<<"Opening COM ports:"<<endl;
     for(const auto &port : qAsConst(comPorts)){
-        qDebug()<<"Opening: "<<port<<endl;
+        qDebug()<<"\tCOM: "<<port<<endl;
         openComPort(port);
     }
     qDebug()<<"DONE"<<endl;
-    qDebug()<<"Ad info:"<<endl;
+    qDebug()<<"Additional information:"<<endl;
     for(int i = 0; i < Arduinos.size(); ++i){
-        Arduinos[i]->close();
-        qDebug()<<Arduinos[i]<<endl;
+        //Arduinos[i]->close(); //wait wat?
+        qDebug()<<Arduinos[i];
     }
 
 }
-
+//Calls when new client connected successfully
 void Server::incomingConnection(qintptr handle){
     socket = new QTcpSocket(this);
     socket->setSocketDescriptor(handle);
     connect(socket,SIGNAL(readyRead()),this,SLOT(socketReady()));
     connect(socket,SIGNAL(disconnected()),this,SLOT(socketDisconnected()));
-    qDebug()<<"Connected! ID: "<<handle<<endl;
+    qDebug()<<"New client connected! ID: "<<handle<<endl;
     socket->write("Success connection");
 }
-
+//Read data that cames from client and pars
 void Server::socketReady(){
     Data = socket->readAll();
-    qDebug()<<Data<<endl;
-}
+    QStringList list = QString(Data).split("|");
+    qDebug()<<"INCOMMING DATA"<<endl;
+    qDebug()<<list<<endl;
 
+    //todo: add paralel IF it's needed...
+    for(int i = 0; i < list.size();++i){
+        sendComData(list[i],Arduinos[i]);
+    }
+}
+//call after client disconnected and delete socket
 void Server::socketDisconnected(){
     socket->deleteLater();
 }
