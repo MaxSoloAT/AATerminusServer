@@ -5,7 +5,7 @@ Server::Server(){
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()){
        if(port.portName() == "ttyS0"){}
 
-       if(port.portName() == "ttyS1"){}
+       if(port.portName() == "\"ttyS1\""){}
 
        comPorts.push_back(port.portName());
 
