@@ -54,6 +54,7 @@ void Server::openComPort(QString port)
     arduino->setFlowControl(QSerialPort::NoFlowControl);
     arduino->open(QSerialPort::WriteOnly);
     arduino->open(QIODevice::WriteOnly);
+    qDebug()<<arduino->isOpen();
     Arduinos.push_back(arduino);
     qDebug()<<"\tDONE"<<endl;
 
