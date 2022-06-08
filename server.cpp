@@ -1,13 +1,14 @@
 #include "server.h"
 #include <QSerialPortInfo>
-
+#include <iostream>
 Server::Server(){
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()){
-       if(port.portName() == "ttyS0"){}
-
-       if(port.portName() == "\"ttyS1\""){}
-
+        char acc;
+        qDebug()<<port.portName()<<endl;
+        std::cin>>acc;
+        if(acc =='+'){
        comPorts.push_back(port.portName());
+        }
 
 
     }
@@ -41,7 +42,7 @@ void Server::sendComData(QString Data, QSerialPort *Com)
     Data = Data + "\r";
     Com->write(Data.toStdString().c_str());
     qDebug()<<"COM: "<<Com<<endl;
-    qDebug()<<"Data: "<<Data.toStdString().c_str()<<endl;
+    qDebug()<<"\tData: "<<Data.toStdString().c_str()<<endl;
     qDebug()<<"-------------------------------------------"<<endl;
 
 }
