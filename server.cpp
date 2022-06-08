@@ -39,6 +39,7 @@ Server::~Server(){
 //Convert bytes to string to char and send to comport
 void Server::sendComData(QString Data, QSerialPort *Com)
 {
+    if(!Com->isOpen()){qDebug()<<"Error"; return;}
     Data = Data + "\r";
     Com->write(Data.toStdString().c_str());
     qDebug()<<"COM: "<<Com<<endl;
