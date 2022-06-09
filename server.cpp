@@ -103,13 +103,23 @@ void Server::incomingConnection(qintptr handle){
 //Read data that cames from client and pars
 void Server::socketReady(){
     Data = socket->readAll();
+    //qDebug()<<socket->read()<<endl;
     QStringList list = QString(Data).split("|");
     qDebug()<<"INCOMMING DATA"<<endl;
     qDebug()<<list<<endl;
-
+	int ARD_SIZE = Arduinos.size();
     //todo: add paralel IF it's needed...
     for(int i = 0; i < list.size();++i){
-        sendComData(list[i],Arduinos[i]);
+       //for(int j = 0; j< Arduinos.size();++j){
+	if(i>=ARD_SIZE){
+		//qDebug()<<"i:"<<i<<endl;
+		//qDebug()<<"a:"<<i%ARD_SIZE;
+            sendComData(list[i],Arduinos[i%ARD_SIZE]);
+	}
+	else{
+		sendComData(list[i],Arduinos[i]);
+	}
+      //}
     }
 }
 //call after client disconnected and delete socket
